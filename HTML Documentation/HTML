@@ -1,0 +1,93 @@
+    
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Bar Chart</title>
+  <script src="https://d3js.org/d3.v4.js"></script>
+</head>
+<body>
+	<div id="title">
+		<h1 >Bar Chart</h1>
+	</div>
+	<div id="chart">
+    <script>
+    		var width = 900;
+		var height = 500;
+		var canvas = d3.select('#chart').append('svg')
+										.attr('width',width + 20)
+										.attr('height',height + 20);
+		var tooltip = d3.select('body').append('div')
+										.style('position','absolute')
+										.style('padding','5px')
+										.style('width','150px')
+										.style('opacity','0')
+										.style('border-radius','5px')
+										.style('background-color','rgba(255, 255, 255,0.5)');
+		var formatToolTipDate = d3.timeFormat('%Y - %B');
+		var formateAxisDate = d3.timeFormat('%Y');
+		d3.json('https://raw.githubusercontent.com/FreeCodeCamp/ProjectReferenceData/master/GDP-data.json',function(err,data){
+			if(err){
+				console.log("some error occured as "+err);
+				alert("Oops something went wrong!!");
+			}else{
+				data = data.data;
+				var yMin = data[0][1];
+				var yMax = data[data.length-1][1];
+				var xMin = new Date(data[0][0]);
+				var xMax = new Date(data[data.length-1][0]);
+				
+				var len= data.length;
+				//axis scalling
+				var xScale = d3.scaleTime().domain([xMin,xMax]).range([0, width]);
+				var yScale = d3.scaleLinear().domain([0,yMax]).range([height, 0]);
+				//axis and their orientations
+				var xAxis = d3.axisBottom(xScale).ticks(15);
+				var yAxis = d3.axisLeft(yScale).ticks(10);
+				//adding  x & y axis
+				canvas.append('g')
+							.attr("transform", "translate(0," + height + ")")
+							.call(xAxis);
+				canvas.append('g').call(yAxis);
+				
+				//canvas.append('g').attr('')
+				canvas.selectAll('rect')
+							.data(data)
+							.enter()
+							.append('rect')
+							.attr('fill','#6E45B1')
+							.attr('width',(width+20)/(len))
+							.attr('height',function(d){
+								return height - yScale(d[1]);
+							})
+							.attr('x',function(d){
+								return xScale(new Date(d[0]));
+							})
+							.attr('y',function(d){
+								return yScale(d[1]);
+							})
+							.on('mouseover',function(d){
+								var date = new Date(d[0]);
+								tooltip.transition()
+											 .duration(1)
+											 .style('opacity',1)
+											 .style('left', (d3.event.pageX + 15) + 'px')
+											 .style('top', (d3.event.pageY - 60)+ 'px');
+								tooltip.html("<span><b>$"+d[1]+" Billions</b></span><br />"+formatToolTipDate(date));
+								d3.select(this).style('opacity',0.5);
+							})
+							.on('mouseout',function(d){
+								tooltip.transition()
+												.duration(500)
+											 .style('opacity',0);
+								d3.select(this).style('opacity',1.0)
+							});
+				data.forEach(function(d){
+					var date = new Date(d[0]);
+					d[0] = formateAxisDate(date);
+				});
+			}
+		});
+    </script>
+	</div>
+</body>
+</html>
