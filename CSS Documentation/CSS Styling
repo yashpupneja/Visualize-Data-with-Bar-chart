@@ -1,0 +1,17 @@
+body{
+	    font-family: helvetica;
+		}
+		#chart{
+			width: 960px;
+			margin: 0 auto;
+		}
+		svg{
+			padding-top: 10px;
+			padding-left: 40px;
+			margin: 0px auto;
+		}
+#title{
+  text-align: center; 
+  color: #6E45B1; 
+  font-weight: bold;
+}
